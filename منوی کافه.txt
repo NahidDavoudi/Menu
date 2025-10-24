@@ -1,0 +1,603 @@
+آره، دقیقاً. وقتی گفتی “پنل مدیریت” و “آپلود عکس و تغییر قیمت”، دیگه از دنیای فرانت استاتیک خارج شدی. اون لحظه سایتت دیگه **داده‌محوره**، یعنی باید بتونه با یه بک‌اند حرف بزنه و داده‌ها رو ذخیره و بازیابی کنه.
+
+پس بله، اینجا نیاز داری به:
+
+* یا **ورسل / نتلیفای / رندر** که محیط NodeJS بدن تا API بسازی
+* یا یه **بک‌اند جدا (مثلاً با Node + Express یا NestJS)** روی یه سرور دیگه
+
+و بعد فرانت (Next) فقط از اون API داده می‌گیره.
+
+اما چون کارت سبک‌تره (یه منوی غذا با چند دسته و آیتم)، پیشنهاد هوشمندتر اینه:
+**همه‌چیز رو روی Vercel بیار بالا،** چون:
+
+* Next روی Vercel نیتیو پشتیبانی میشه.
+* می‌تونی داخل خود پروژه API Route بسازی برای CRUD آیتم‌ها (افزودن، حذف، ویرایش).
+* نیازی به سرور جدا نداری.
+
+یعنی:
+
+* `/pages/index.tsx` → منو
+* `/pages/api/items.ts` → API برای دریافت و تغییر آیتم‌ها
+* `/pages/admin.tsx` → پنل مدیریت
+
+تمام. نه دردسر هاست اشتراکی داری، نه تنظیمات عجیب.
+
+می‌خوای بر اساس همین ساختار یه نقشه فایل و فولدر تمیز و واقعی برات بنویسم که پایه‌ی پروژه‌ت بشه؟
+کارت ها رو مینیمال و با سبک نئومورفیسم طراحی کن. هدر شبیه یه جزیره معلق باشه با استایل بلر و شیشه ای. همه کارت کتگوری ها داخل یک کانتینتر هستن که یه بوردر خاکستری داره و بک گراندش یکم سایه خاکستری داره تا با بدنه مشکی سایت متفاوت باشه. و هر کارت کتگوری رو که که کلیک میکنیم انگار تغییر سایز میده و کل کانتینر رو پر میکنه و آیتم های اون کتگوری رو نشون 
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منوی دیجیتال رستوران</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            min-height: 100%;
+            color: white;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        /* Glassmorphism Header */
+        header {
+            background: rgba(139, 0, 0, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(220, 20, 60, 0.2);
+            border-radius: 20px;
+            margin: 20px;
+            padding: 20px 40px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 16px;
+            transition: all 0.3s;
+            padding: 12px 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        nav a:hover {
+            background: rgba(220, 20, 60, 0.2);
+            border-color: rgba(220, 20, 60, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 20, 60, 0.2);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 42px;
+            margin-bottom: 20px;
+            color: #DC143C;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 18px;
+            color: #cccccc;
+            margin-bottom: 40px;
+        }
+
+        /* Neumorphic Container */
+        .menu-container {
+            background: #2a2a2a;
+            border: 1px solid #404040;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 
+                inset 8px 8px 16px rgba(0, 0, 0, 0.4),
+                inset -8px -8px 16px rgba(60, 60, 60, 0.1),
+                0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            transition: all 0.5s ease;
+        }
+
+        /* Neumorphic Card Styling */
+        .menu-card {
+            background: #2a2a2a;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 
+                8px 8px 16px rgba(0, 0, 0, 0.4),
+                -8px -8px 16px rgba(60, 60, 60, 0.1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                12px 12px 24px rgba(0, 0, 0, 0.5),
+                -12px -12px 24px rgba(60, 60, 60, 0.15),
+                0 0 0 1px rgba(220, 20, 60, 0.3);
+        }
+
+        .menu-card.expanded {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            border-radius: 30px;
+            transform: none !important;
+            animation: expandCard 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes expandCard {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .card-content {
+            padding: 25px;
+            background: #2a2a2a;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #cccccc;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #DC143C, #8B0000);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            box-shadow: 
+                4px 4px 8px rgba(0, 0, 0, 0.4),
+                -2px -2px 4px rgba(60, 60, 60, 0.1);
+        }
+
+        /* Menu Items View */
+        .menu-items {
+            display: none;
+            padding: 30px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .menu-card.expanded .menu-items {
+            display: block;
+        }
+
+        .menu-card.expanded .card-image,
+        .menu-card.expanded .card-content {
+            display: none;
+        }
+
+        .back-button {
+            background: #2a2a2a;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: 
+                6px 6px 12px rgba(0, 0, 0, 0.4),
+                -6px -6px 12px rgba(60, 60, 60, 0.1);
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            box-shadow: 
+                inset 4px 4px 8px rgba(0, 0, 0, 0.4),
+                inset -4px -4px 8px rgba(60, 60, 60, 0.1);
+        }
+
+        .menu-item {
+            background: #2a2a2a;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 
+                6px 6px 12px rgba(0, 0, 0, 0.4),
+                -6px -6px 12px rgba(60, 60, 60, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                8px 8px 16px rgba(0, 0, 0, 0.5),
+                -8px -8px 16px rgba(60, 60, 60, 0.15);
+        }
+
+        .item-info h3 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .item-info p {
+            color: #cccccc;
+            font-size: 14px;
+        }
+
+        .item-price {
+            color: #DC143C;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Grid Hidden State */
+        .cards-grid.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+                margin: 30px auto;
+            }
+
+            .page-title {
+                font-size: 32px;
+            }
+
+            .menu-container {
+                padding: 25px;
+                border-radius: 20px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            header {
+                margin: 15px;
+                padding: 15px 25px;
+                border-radius: 15px;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            nav {
+                gap: 10px;
+            }
+
+            nav a {
+                font-size: 14px;
+                padding: 8px 15px;
+                border-radius: 12px;
+            }
+
+            .menu-items {
+                padding: 20px;
+            }
+
+            .menu-item {
+                padding: 15px;
+                border-radius: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">پیتزا فلفلی</div>
+            <nav>
+                <a href="#home">خانه</a>
+                <a href="#menu">منو</a>
+                <a href="#about">درباره ما</a>
+                <a href="#contact">تماس</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <p class="subtitle">دسته‌بندی غذاها</p>
+        <div class="menu-container" id="menuContainer">
+            <div class="cards-grid" id="cardsGrid">
+            <div class="menu-card" onclick="toggleCard(this, 'pizza')">
+                <div class="card-badge">محبوب</div>
+                    <rect width="400" height="200" fill="#2a2a2a"/>
+                    <circle cx="200" cy="100" r="70" fill="#F4A460"/>
+                    <circle cx="180" cy="85" r="8" fill="#DC143C"/>
+                    <circle cx="220" cy="85" r="8" fill="#DC143C"/>
+                    <circle cx="200" cy="110" r="8" fill="#228B22"/>
+                    <circle cx="170" cy="120" r="6" fill="#FFD700"/>
+                    <circle cx="230" cy="120" r="6" fill="#FFD700"/>
+                    <text x="200" y="180" font-size="24" fill="#DC143C" text-anchor="middle" font-weight="bold">🍕</text>
+                </svg>
+                <div class="card-content">
+                    <h2 class="card-title">پیتزا</h2>
+                    <p class="card-description">انواع پیتزاهای ایتالیایی با پنیر تازه و مواد اولیه درجه یک</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>پیتزا مارگاریتا</h3>
+                            <p>پنیر موزارلا، گوجه فرنگی، ریحان تازه</p>
+                        </div>
+                        <div class="item-price">۲۵۰,۰۰۰ تومان</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>پیتزا پپرونی</h3>
+                            <p>پپرونی، پنیر موزارلا، سس گوجه</p>
+                        </div>
+                        <div class="item-price">۳۲۰,۰۰۰ تومان</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>پیتزا چهار فصل</h3>
+                            <p>قارچ، زیتون، فلفل دلمه، آناناس</p>
+                        </div>
+                        <div class="item-price">۳۸۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card" onclick="toggleCard(this, 'burger')">
+                <div class="card-badge">جدید</div>
+                    <rect width="400" height="200" fill="#2a2a2a"/>
+                    <ellipse cx="200" cy="100" rx="80" ry="50" fill="#DEB887"/>
+                    <rect x="160" y="80" width="80" height="40" rx="8" fill="#8B4513"/>
+                    <circle cx="180" cy="90" r="4" fill="#228B22"/>
+                    <circle cx="220" cy="90" r="4" fill="#DC143C"/>
+                    <text x="200" y="180" font-size="24" fill="#8B4513" text-anchor="middle" font-weight="bold">🍔</text>
+                </svg>
+                <div class="card-content">
+                    <h2 class="card-title">برگر</h2>
+                    <p class="card-description">برگرهای رستورانی با گوشت تازه و سس‌های خانگی</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>برگر کلاسیک</h3>
+                            <p>گوشت گاو، کاهو، گوجه، پیاز، سس مخصوص</p>
+                        </div>
+                        <div class="item-price">۲۸۰,۰۰۰ تومان</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>چیز برگر</h3>
+                            <p>گوشت گاو، پنیر چدار، کاهو، گوجه</p>
+                        </div>
+                        <div class="item-price">۳۲۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card" onclick="toggleCard(this, 'pasta')">
+                    <rect width="400" height="200" fill="#2a2a2a"/>
+                    <path d="M 100 100 Q 150 70 200 100 Q 250 70 300 100" stroke="#DAA520" stroke-width="6" fill="none"/>
+                    <path d="M 120 120 Q 170 90 220 120 Q 270 90 320 120" stroke="#DAA520" stroke-width="6" fill="none"/>
+                    <circle cx="180" cy="90" r="4" fill="#DC143C"/>
+                    <circle cx="220" cy="90" r="4" fill="#228B22"/>
+                    <text x="200" y="180" font-size="24" fill="#DAA520" text-anchor="middle" font-weight="bold">🍝</text>
+                </svg>
+                <div class="card-content">
+                    <h2 class="card-title">پاستا</h2>
+                    <p class="card-description">پاستاهای ایتالیایی با سس‌های متنوع و طعم‌های بی‌نظیر</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>اسپاگتی کربونارا</h3>
+                            <p>اسپاگتی، بیکن، پنیر پارمزان، تخم مرغ</p>
+                        </div>
+                        <div class="item-price">۳۵۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card" onclick="toggleCard(this, 'cold')">
+                <div class="card-badge">ویژه</div>
+                    <rect width="400" height="200" fill="#2a2a2a"/>
+                    <rect x="170" y="60" width="60" height="100" rx="8" fill="#87CEEB"/>
+                    <circle cx="200" cy="80" r="6" fill="#FFD700"/>
+                    <circle cx="185" cy="100" r="4" fill="#FFD700"/>
+                    <circle cx="215" cy="100" r="4" fill="#FFD700"/>
+                    <text x="200" y="185" font-size="24" fill="#4682B4" text-anchor="middle" font-weight="bold">🥤</text>
+                </svg>
+                <div class="card-content">
+                    <h2 class="card-title">بار سرد</h2>
+                    <p class="card-description">نوشیدنی‌های خنک و دلچسب برای روزهای گرم</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>لیموناد تازه</h3>
+                            <p>آب لیمو تازه، نعنا، یخ</p>
+                        </div>
+                        <div class="item-price">۸۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card" onclick="toggleCard(this, 'hot')">
+                    <rect width="400" height="200" fill="#2a2a2a"/>
+                    <ellipse cx="200" cy="110" rx="50" ry="60" fill="#D2691E"/>
+                    <rect x="195" y="70" width="10" height="25" fill="#8B4513"/>
+                    <path d="M 170 90 Q 200 80 230 90" stroke="#A0522D" stroke-width="2" fill="none"/>
+                    <text x="200" y="185" font-size="24" fill="#8B4513" text-anchor="middle" font-weight="bold">☕</text>
+                </svg>
+                <div class="card-content">
+                    <h2 class="card-title">بار گرم</h2>
+                    <p class="card-description">نوشیدنی‌های گرم و معطر برای لحظات آرامش</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>قهوه اسپرسو</h3>
+                            <p>قهوه تازه آسیاب شده، طعم قوی</p>
+                        </div>
+                        <div class="item-price">۱۲۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card" onclick="toggleCard(this, 'dessert')">
+                <div class="card-badge">توصیه شف</div>
+                    <rect width="400" height="200" fill="#2a2a2a"/>
+                    <circle cx="200" cy="110" r="50" fill="#FFB6C1"/>
+                    <circle cx="185" cy="95" r="3" fill="#8B4513"/>
+                    <circle cx="215" cy="95" r="3" fill="#8B4513"/>
+                    <circle cx="200" cy="85" r="5" fill="#DC143C"/>
+                    <text x="200" y="185" font-size="24" fill="#DC143C" text-anchor="middle" font-weight="bold">🍰</text>
+                </svg>
+                <div class="card-content">
+                    <h2 class="card-title">دسرها</h2>
+                    <p class="card-description">دسرهای خوشمزه و شیرین برای پایان وعده غذایی</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>تیرامیسو</h3>
+                            <p>کیک اسفنجی، قهوه، پنیر ماسکارپونه</p>
+                        </div>
+                        <div class="item-price">۱۸۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleCard(card, category) {
+            const cardsGrid = document.getElementById('cardsGrid');
+            const allCards = document.querySelectorAll('.menu-card');
+            
+            if (card.classList.contains('expanded')) {
+                card.classList.remove('expanded');
+                cardsGrid.classList.remove('hidden');
+            } else {
+                // Hide all other cards
+                allCards.forEach(c => {
+                    if (c !== card) {
+                        c.style.display = 'none';
+                    }
+                });
+                
+                // Expand the clicked card
+                card.classList.add('expanded');
+                cardsGrid.classList.add('hidden');
+            }
+        }
+
+        function closeCard(event) {
+            event.stopPropagation();
+            const cardsGrid = document.getElementById('cardsGrid');
+            const allCards = document.querySelectorAll('.menu-card');
+            const expandedCard = document.querySelector('.menu-card.expanded');
+            
+            if (expandedCard) {
+                expandedCard.classList.remove('expanded');
+            }
+            
+            // Show all cards again
+            allCards.forEach(c => {
+                c.style.display = 'block';
+            });
+            
+            cardsGrid.classList.remove('hidden');
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99383e68079b6661',t:'MTc2MTI5NjAwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

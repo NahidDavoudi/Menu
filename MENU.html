@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منوی دیجیتال رستوران</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            min-height: 100%;
+            color: white;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        /* 3D Matte Header */
+        header {
+            background: linear-gradient(145deg, rgba(139, 0, 0, 0.4), rgba(85, 0, 0, 0.6));
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(139, 0, 0, 0.3);
+            border-radius: 25px;
+            margin: 20px;
+            padding: 25px 40px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                0 5px 15px rgba(0, 0, 0, 0.2),
+                inset 0 2px 0 rgba(255, 255, 255, 0.15),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            transform: translateZ(0);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 16px;
+            transition: all 0.3s;
+            padding: 12px 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        nav a:hover {
+            background: rgba(220, 20, 60, 0.2);
+            border-color: rgba(220, 20, 60, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 20, 60, 0.2);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 42px;
+            margin-bottom: 20px;
+            color: #DC143C;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 18px;
+            color: #cccccc;
+            margin-bottom: 40px;
+        }
+
+        /* Neumorphic Container */
+        .menu-container {
+            background: #2a2a2a;
+            border: 1px solid #404040;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 
+                inset 8px 8px 16px rgba(0, 0, 0, 0.4),
+                inset -8px -8px 16px rgba(60, 60, 60, 0.1),
+                0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            transition: all 0.5s ease;
+        }
+
+        /* Neumorphic Card Styling */
+        .menu-card {
+            background: #f7f6f6;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 
+                8px 8px 16px rgba(0, 0, 0, 0.4),
+                -8px -8px 16px rgba(60, 60, 60, 0.1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                12px 12px 24px rgba(0, 0, 0, 0.5),
+                -12px -12px 24px rgba(60, 60, 60, 0.15),
+                0 0 0 1px rgba(220, 20, 60, 0.3);
+        }
+
+        .menu-card.expanded {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            border-radius: 30px;
+            transform: none !important;
+            animation: expandCard 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes expandCard {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .card-image {
+            width: 100%;
+            height: 220px;
+            border-radius: 20px;
+            flex-shrink: 0;
+            padding: 5px;
+            background: rgb(31, 31, 31);
+            box-sizing: border-box;
+            margin: 10px;
+            width: calc(100% - 20px);
+            height: 200px;
+        }
+
+        .card-content {
+            padding: 25px;
+            background: #f8f8f8;
+            border-radius: 0 0 25px 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2a2a2a;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #666666;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #DC143C, #8B0000);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            box-shadow: 
+                4px 4px 8px rgba(0, 0, 0, 0.4),
+                -2px -2px 4px rgba(60, 60, 60, 0.1);
+        }
+
+        /* Menu Items View */
+        .menu-items {
+            display: none;
+            padding: 30px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .menu-card.expanded .menu-items {
+            display: block;
+        }
+
+        .menu-card.expanded .card-image,
+        .menu-card.expanded .card-content {
+            display: none;
+        }
+
+        .back-button {
+            background: #2a2a2a;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: 
+                6px 6px 12px rgba(0, 0, 0, 0.4),
+                -6px -6px 12px rgba(60, 60, 60, 0.1);
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            box-shadow: 
+                inset 4px 4px 8px rgba(0, 0, 0, 0.4),
+                inset -4px -4px 8px rgba(60, 60, 60, 0.1);
+        }
+
+        .menu-item {
+            background: #2a2a2a;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 
+                6px 6px 12px rgba(0, 0, 0, 0.4),
+                -6px -6px 12px rgba(60, 60, 60, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                8px 8px 16px rgba(0, 0, 0, 0.5),
+                -8px -8px 16px rgba(60, 60, 60, 0.15);
+        }
+
+        .item-info h3 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .item-info p {
+            color: #cccccc;
+            font-size: 14px;
+        }
+
+        .item-price {
+            color: #DC143C;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Grid Hidden State */
+        .cards-grid.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+                margin: 30px auto;
+            }
+
+            .page-title {
+                font-size: 32px;
+            }
+
+            .menu-container {
+                padding: 25px;
+                border-radius: 20px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            header {
+                margin: 15px;
+                padding: 15px 25px;
+                border-radius: 15px;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            nav {
+                gap: 10px;
+            }
+
+            nav a {
+                font-size: 14px;
+                padding: 8px 15px;
+                border-radius: 12px;
+            }
+
+            .menu-items {
+                padding: 20px;
+            }
+
+            .menu-item {
+                padding: 15px;
+                border-radius: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">🍽️ رستوران مدرن</div>
+            <nav>
+                <a href="#home">خانه</a>
+                <a href="#menu">منو</a>
+                <a href="#about">درباره ما</a>
+                <a href="#contact">تماس</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <p class="subtitle">دسته‌بندی غذاها را انتخاب کنید</p>
+
+        <div class="menu-container" id="menuContainer">
+            <div class="cards-grid" id="cardsGrid">
+            <div class="menu-card" onclick="toggleCard(this, 'pizza')">
+                <div class="card-badge">محبوب</div>
+                <div class="card-image">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 60px;">🍕</div>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">پیتزا</h2>
+                    <p class="card-description">انواع پیتزاهای ایتالیایی با پنیر تازه و مواد اولیه درجه یک</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>پیتزا مارگاریتا</h3>
+                            <p>پنیر موزارلا، گوجه فرنگی، ریحان تازه</p>
+                        </div>
+                        <div class="item-price">۲۵۰,۰۰۰ تومان</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>پیتزا پپرونی</h3>
+                            <p>پپرونی، پنیر موزارلا، سس گوجه</p>
+                        </div>
+                        <div class="item-price">۳۲۰,۰۰۰ تومان</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>پیتزا چهار فصل</h3>
+                            <p>قارچ، زیتون، فلفل دلمه، آناناس</p>
+                        </div>
+                        <div class="item-price">۳۸۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card" onclick="toggleCard(this, 'burger')">
+                <div class="card-badge">جدید</div>
+                <div class="card-image">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 60px;">🍔</div>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">برگر</h2>
+                    <p class="card-description">برگرهای رستورانی با گوشت تازه و سس‌های خانگی</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>برگر کلاسیک</h3>
+                            <p>گوشت گاو، کاهو، گوجه، پیاز، سس مخصوص</p>
+                        </div>
+                        <div class="item-price">۲۸۰,۰۰۰ تومان</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>چیز برگر</h3>
+                            <p>گوشت گاو، پنیر چدار، کاهو، گوجه</p>
+                        </div>
+                        <div class="item-price">۳۲۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card" onclick="toggleCard(this, 'pasta')">
+                <div class="card-image">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 60px;">🍝</div>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">پاستا</h2>
+                    <p class="card-description">پاستاهای ایتالیایی با سس‌های متنوع و طعم‌های بی‌نظیر</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>اسپاگتی کربونارا</h3>
+                            <p>اسپاگتی، بیکن، پنیر پارمزان، تخم مرغ</p>
+                        </div>
+                        <div class="item-price">۳۵۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card" onclick="toggleCard(this, 'cold')">
+                <div class="card-badge">ویژه</div>
+                <div class="card-image">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 60px;">🥤</div>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">بار سرد</h2>
+                    <p class="card-description">نوشیدنی‌های خنک و دلچسب برای روزهای گرم</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>لیموناد تازه</h3>
+                            <p>آب لیمو تازه، نعنا، یخ</p>
+                        </div>
+                        <div class="item-price">۸۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card" onclick="toggleCard(this, 'hot')">
+                <div class="card-image">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 60px;">☕</div>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">بار گرم</h2>
+                    <p class="card-description">نوشیدنی‌های گرم و معطر برای لحظات آرامش</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>قهوه اسپرسو</h3>
+                            <p>قهوه تازه آسیاب شده، طعم قوی</p>
+                        </div>
+                        <div class="item-price">۱۲۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-card" onclick="toggleCard(this, 'dessert')">
+                <div class="card-badge">توصیه شف</div>
+                <div class="card-image">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 60px;">🍰</div>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">دسرها</h2>
+                    <p class="card-description">دسرهای خوشمزه و شیرین برای پایان وعده غذایی</p>
+                </div>
+                <div class="menu-items">
+                    <button class="back-button" onclick="closeCard(event)">← بازگشت</button>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h3>تیرامیسو</h3>
+                            <p>کیک اسفنجی، قهوه، پنیر ماسکارپونه</p>
+                        </div>
+                        <div class="item-price">۱۸۰,۰۰۰ تومان</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleCard(card, category) {
+            const cardsGrid = document.getElementById('cardsGrid');
+            const allCards = document.querySelectorAll('.menu-card');
+            
+            if (card.classList.contains('expanded')) {
+                card.classList.remove('expanded');
+                cardsGrid.classList.remove('hidden');
+            } else {
+                // Hide all other cards
+                allCards.forEach(c => {
+                    if (c !== card) {
+                        c.style.display = 'none';
+                    }
+                });
+                
+                // Expand the clicked card
+                card.classList.add('expanded');
+                cardsGrid.classList.add('hidden');
+            }
+        }
+
+        function closeCard(event) {
+            event.stopPropagation();
+            const cardsGrid = document.getElementById('cardsGrid');
+            const allCards = document.querySelectorAll('.menu-card');
+            const expandedCard = document.querySelector('.menu-card.expanded');
+            
+            if (expandedCard) {
+                expandedCard.classList.remove('expanded');
+            }
+            
+            // Show all cards again
+            allCards.forEach(c => {
+                c.style.display = 'block';
+            });
+            
+            cardsGrid.classList.remove('hidden');
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99386579b075df30',t:'MTc2MTI5NzYwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
